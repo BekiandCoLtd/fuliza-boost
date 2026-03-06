@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Your Payment</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2ecc71;
+            --secondary-color: #e74c3c;
+            --text-color: #333;
+            --light-gray: #f5f5f5;
+            --white: #fff;
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            --border-radius: 10px;
+            --light-green: #e8f8f0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-gray);
+            margin: 0;
+            padding: 0;
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: var(--secondary-color);
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .limit-info {
+            background-color: var(--light-green);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .limit-info h3 {
+            margin: 0 0 10px;
+            color: var(--secondary-color);
+        }
+
+        .limit-info p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+
+        .till-info {
+            background-color: var(--white);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            border: 1px solid #ddd;
+            margin: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .till-details {
+            flex: 1;
+        }
+
+        .till-name {
+            font-weight: bold;
+            color: var(--secondary-color);
+            font-size: 16px;
+        }
+
+        .till-number {
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 18px;
+            margin: 5px 0;
+        }
+
+        .copy-button {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            padding: 8px 12px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .copy-button:hover {
+            background-color: #27ae60;
+        }
+
+        .payment-instructions {
+            background-color: var(--white);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            border: 1px solid #ddd;
+            margin: 20px 0;
+        }
+
+        .payment-instructions h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+
+        .payment-instructions ol {
+            padding-left: 20px;
+        }
+
+        .payment-instructions li {
+            margin: 10px 0;
+        }
+
+        .cta-button {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            font-size: 18px;
+            cursor: pointer;
+            width: 100%;
+            margin: 20px 0;
+            transition: background-color 0.3s;
+        }
+
+        .cta-button:hover {
+            background-color: #27ae60;
+        }
+
+        /* Success Dialog */
+        .success-dialog {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .success-content {
+            background-color: var(--white);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            box-shadow: var(--shadow);
+            max-width: 400px;
+        }
+
+        .success-icon {
+            color: var(--primary-color);
+            font-size: 50px;
+            margin-bottom: 20px;
+        }
+
+        .success-content h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Complete Your Payment</h1>
+            <p>Follow the instructions below to pay the processing fee via M-Pesa</p>
+        </div>
+
+        <div class="limit-info">
+            <h3>Your Request Summary</h3>
+            <p><strong>New Fuliza Limit:</strong> Ksh <span id="newLimit">50,000</span></p>
+            <p><strong>Processing Fee:</strong> Ksh <span id="processingFee">1,500</span></p>
+        </div>
+
+        <div class="till-info">
+            <div class="till-details">
+                <div class="till-name">Fuliza Limit Boost Till</div>
+                <div class="till-number" id="tillNumber">123456</div>
+            </div>
+            <button class="copy-button" id="copyButton">
+                <i class="fas fa-copy"></i> Copy
+            </button>
+        </div>
+
+        <div class="payment-instructions">
+            <h3>Payment Instructions:</h3>
+            <ol>
+                <li>Go to <strong>M-Pesa</strong> on your phone.</li>
+                <li>Select <strong>Lipa na M-Pesa</strong>.</li>
+                <li>Choose <strong>Buy Goods and Services</strong>.</li>
+                <li>Enter the Till Number: <strong><span id="tillNumberInstruction">123456</span></strong>.</li>
+                <li>Enter the amount: <strong>Ksh <span id="amountInstruction">1,500</span></strong>.</li>
+                <li>Enter your M-Pesa PIN and confirm the payment.</li>
+                <li>Wait for the confirmation message from M-Pesa.</li>
+            </ol>
+        </div>
+
+        <button class="cta-button" id="confirmPaymentButton">I Have Paid</button>
+    </div>
+
+    <!-- Success Dialog -->
+    <div class="success-dialog" id="successDialog">
+        <div class="success-content">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2>Payment Received!</h2>
+            <p>Your payment has been received successfully.</p>
+            <p>Please await <strong>24-48 hours</strong> for your new Fuliza limit to reflect.</p>
+            <button class="cta-button" id="okButton" style="margin-top: 20px;">OK</button>
+        </div>
+    </div>
+
+    <script>
+        // Retrieve the limit, fee, and phone from the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const limit = urlParams.get('limit') || "50,000";
+        const fee = urlParams.get('fee') || "1,500";
+        const phone = urlParams.get('phone') || "0712345678";
+
+        // Display the limit and fee
+        document.getElementById('newLimit').textContent = limit;
+        document.getElementById('processingFee').textContent = fee;
+
+        // Simulate a till number (replace with your actual till number)
+        const tillNumber = "123456";
+        const tillName = "Fuliza Limit Boost Till";
+        document.getElementById('tillNumber').textContent = tillNumber;
+        document.getElementById('tillNumberInstruction').textContent = tillNumber;
+        document.getElementById('amountInstruction').textContent = fee;
+
+        // Copy till number to clipboard
+        document.getElementById('copyButton').addEventListener('click', () => {
+            navigator.clipboard.writeText(tillNumber)
+                .then(() => alert('Till number copied to clipboard!'))
+                .catch(err => console.error('Failed to copy: ', err));
+        });
+
+        // Handle the "I Have Paid" button
+        document.getElementById('confirmPaymentButton').addEventListener('click', () => {
+            // Show the success dialog
+            document.getElementById('successDialog').style.display = 'flex';
+        });
+
+        // Handle the "OK" button in the success dialog
+        document.getElementById('okButton').addEventListener('click', () => {
+            // Redirect to a success page or close the dialog
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>
