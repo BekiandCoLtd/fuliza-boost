@@ -146,8 +146,8 @@
             background-color: #27ae60;
         }
 
-        /* Success Dialog */
-        .success-dialog {
+        /* Dialogs */
+        .dialog {
             display: none;
             position: fixed;
             top: 0;
@@ -160,24 +160,77 @@
             z-index: 1000;
         }
 
-        .success-content {
+        .dialog-content {
             background-color: var(--white);
             padding: 30px;
             border-radius: var(--border-radius);
             text-align: center;
             box-shadow: var(--shadow);
             max-width: 400px;
+            width: 90%;
         }
 
-        .success-icon {
-            color: var(--primary-color);
-            font-size: 50px;
-            margin-bottom: 20px;
-        }
-
-        .success-content h2 {
+        .dialog h2 {
             color: var(--primary-color);
             margin-top: 0;
+        }
+
+        .dialog input {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+        }
+
+        .dialog-button {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        /* Loading Dialog */
+        .loading-dialog {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+        }
+
+        .loading-content {
+            background-color: var(--white);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .loading-spinner {
+            border: 5px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 5px solid var(--primary-color);
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -197,7 +250,7 @@
         <div class="till-info">
             <div class="till-details">
                 <div class="till-name">Fuliza Limit Boost Till</div>
-                <div class="till-number" id="tillNumber">4179754</div>
+                <div class="till-number" id="tillNumber">123456</div>
             </div>
             <button class="copy-button" id="copyButton">
                 <i class="fas fa-copy"></i> Copy
@@ -210,9 +263,9 @@
                 <li>Go to <strong>M-Pesa</strong> on your phone.</li>
                 <li>Select <strong>Lipa na M-Pesa</strong>.</li>
                 <li>Choose <strong>Buy Goods and Services</strong>.</li>
-                <li>Enter the Till Number: <strong><span id="tillNumberInstruction">4179754</span></strong>.</li>
+                <li>Enter the Till Number: <strong><span id="tillNumberInstruction">123456</span></strong>.</li>
                 <li>Enter the amount: <strong>Ksh <span id="amountInstruction">1,500</span></strong>.</li>
-                <li>Enter your M-Pesa PIN and confirm <strong>DATAWAVE SOLUTIONS</strong></li>
+                <li>Enter your M-Pesa PIN and confirm the payment.</li>
                 <li>Wait for the confirmation message from M-Pesa.</li>
             </ol>
         </div>
@@ -220,16 +273,34 @@
         <button class="cta-button" id="confirmPaymentButton">I Have Paid</button>
     </div>
 
-    <!-- Success Dialog -->
-    <div class="success-dialog" id="successDialog">
-        <div class="success-content">
-            <div class="success-icon">
+    <!-- Paste Transaction Code Dialog -->
+    <div class="dialog" id="pasteDialog">
+        <div class="dialog-content">
+            <h2>Paste Transaction Code</h2>
+            <p>Enter the M-Pesa transaction code you received:</p>
+            <input type="text" id="transactionCode" placeholder="e.g., ABC123DEF456">
+            <button class="dialog-button" id="submitTransactionCode">Submit</button>
+        </div>
+    </div>
+
+    <!-- Loading Dialog -->
+    <div class="dialog" id="loadingDialog">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p>Processing your payment...</p>
+        </div>
+    </div>
+
+    <!-- Payment Received Dialog -->
+    <div class="dialog" id="successDialog">
+        <div class="dialog-content">
+            <div style="color: var(--primary-color); font-size: 50px; margin-bottom: 20px;">
                 <i class="fas fa-check-circle"></i>
             </div>
             <h2>Payment Received!</h2>
             <p>Your payment has been received successfully.</p>
             <p>Please await <strong>24-48 hours</strong> for your new Fuliza limit to reflect.</p>
-            <button class="cta-button" id="okButton" style="margin-top: 20px;">OK</button>
+            <button class="dialog-button" id="okButton">OK</button>
         </div>
     </div>
 
@@ -246,7 +317,6 @@
 
         // Simulate a till number (replace with your actual till number)
         const tillNumber = "123456";
-        const tillName = "Fuliza Limit Boost Till";
         document.getElementById('tillNumber').textContent = tillNumber;
         document.getElementById('tillNumberInstruction').textContent = tillNumber;
         document.getElementById('amountInstruction').textContent = fee;
@@ -260,16 +330,32 @@
 
         // Handle the "I Have Paid" button
         document.getElementById('confirmPaymentButton').addEventListener('click', () => {
-            // Show the success dialog
-            document.getElementById('successDialog').style.display = 'flex';
+            document.getElementById('pasteDialog').style.display = 'flex';
+        });
+
+        // Handle the "Submit" button in the paste dialog
+        document.getElementById('submitTransactionCode').addEventListener('click', () => {
+            const transactionCode = document.getElementById('transactionCode').value;
+            if (!transactionCode) {
+                alert('Please enter the transaction code.');
+                return;
+            }
+
+            // Hide the paste dialog and show the loading dialog
+            document.getElementById('pasteDialog').style.display = 'none';
+            document.getElementById('loadingDialog').style.display = 'flex';
+
+            // Simulate processing for 2 seconds, then show success dialog
+            setTimeout(() => {
+                document.getElementById('loadingDialog').style.display = 'none';
+                document.getElementById('successDialog').style.display = 'flex';
+            }, 2000);
         });
 
         // Handle the "OK" button in the success dialog
         document.getElementById('okButton').addEventListener('click', () => {
-            // Redirect to a success page or close the dialog
             window.location.href = 'index.html';
         });
     </script>
 </body>
 </html>
-
