@@ -278,7 +278,7 @@
                 <li>Choose <strong>Buy Goods and Services</strong>.</li>
                 <li>Enter the Till Number: <strong><span id="tillNumberInstruction">4179754</span></strong>.</li>
                 <li>Enter the amount: <strong>Ksh <span id="amountInstruction">1,500</span></strong>.</li>
-                <li>Enter your M-Pesa PIN and confirm <strong>DATAWAVE SOLUTIONS</strong></li>
+                <li>Enter your M-Pesa PIN and confirm the payment.</li>
                 <li>Wait for the confirmation message from M-Pesa.</li>
             </ol>
         </div>
@@ -325,7 +325,7 @@
         const fee = urlParams.get('fee') || "1500";
         const phone = urlParams.get('phone') || "0712345678";
 
-        // Format fee for display (without commas for validation)
+        // Format fee for display (with commas for amounts over 1000)
         const formattedFee = parseInt(fee).toLocaleString();
         const rawFee = parseInt(fee);
 
@@ -364,15 +364,25 @@
                 return;
             }
 
-            // Check if the transaction message contains the correct fee amount in Kenyan format (Ksh1500)
-            // Remove commas from formatted fee for validation
+            // Check if the transaction message contains the correct fee amount
+            // For Kenyan format, check both with and without commas
             const feeForValidation = formattedFee.replace(/,/g, '');
+            const feeWithComma = formattedFee;
+
+            // Common patterns in Kenyan M-Pesa messages
             const isValidTransaction =
-                transactionMessage.includes(`Ksh${feeForValidation}`) ||
+                transactionMessage.includes(`Ksh${feeForValidation}`) ||  // Ksh1500
+                transactionMessage.includes(`Ksh${feeWithComma}`) ||     // Ksh1,500
                 transactionMessage.includes(`KES${feeForValidation}`) ||
+                transactionMessage.includes(`KES${feeWithComma}`) ||
                 transactionMessage.includes(`Amount Ksh${feeForValidation}`) ||
+                transactionMessage.includes(`Amount Ksh${feeWithComma}`) ||
                 transactionMessage.includes(`Ksh.${feeForValidation}`) ||
-                transactionMessage.includes(`KES.${feeForValidation}`);
+                transactionMessage.includes(`Ksh.${feeWithComma}`) ||
+                transactionMessage.includes(`KES.${feeForValidation}`) ||
+                transactionMessage.includes(`KES.${feeWithComma}`) ||
+                transactionMessage.includes(`Amount: Ksh${feeForValidation}`) ||
+                transactionMessage.includes(`Amount: Ksh${feeWithComma}`);
 
             if (!isValidTransaction) {
                 errorMessage.style.display = 'block';
@@ -397,4 +407,3 @@
     </script>
 </body>
 </html>
-
