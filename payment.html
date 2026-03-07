@@ -288,10 +288,10 @@
     <div class="dialog" id="pasteDialog">
         <div class="dialog-content">
             <h2>Paste Transaction Code</h2>
-            <p>Enter the M-Pesa transaction code you received for paying <strong>Ksh <span id="feeCheck">1,500</span></strong>:</p>
-            <input type="text" id="transactionCode" placeholder="e.g., ABC123DEF456">
-            <p id="errorMessage" style="color: red; display: none;">Error: The transaction code does not match the payment amount. Please ensure you paid Ksh <span id="errorFeeCheck">1,500</span>.</p>
-            <button class="dialog-button" id="submitTransactionCode">Submit</button>
+            <p>Enter the M-Pesa transaction message you received for paying <strong>Ksh <span id="feeCheck">1,500</span></strong>:</p>
+            <input type="text" id="transactionMessage" placeholder="Paste your M-Pesa confirmation message here">
+            <p id="errorMessage" style="color: red; display: none;">Error: The transaction message does not contain the correct payment amount. Please ensure you paid Ksh <span id="errorFeeCheck">1,500</span>.</p>
+            <button class="dialog-button" id="submitTransactionMessage">Submit</button>
         </div>
     </div>
 
@@ -349,18 +349,20 @@
         });
 
         // Handle the "Submit" button in the paste dialog
-        document.getElementById('submitTransactionCode').addEventListener('click', () => {
-            const transactionCode = document.getElementById('transactionCode').value;
+        document.getElementById('submitTransactionMessage').addEventListener('click', () => {
+            const transactionMessage = document.getElementById('transactionMessage').value;
             const errorMessage = document.getElementById('errorMessage');
+            const feeAmount = parseInt(fee).toLocaleString();
 
-            if (!transactionCode) {
-                alert('Please enter the transaction code.');
+            if (!transactionMessage) {
+                alert('Please paste your M-Pesa confirmation message.');
                 return;
             }
 
-            // Simulate checking if the transaction code matches the fee
-            // In a real application, you would validate the transaction code with your backend
-            const isValidTransaction = validateTransaction(transactionCode, fee);
+            // Check if the transaction message contains the correct fee amount
+            const isValidTransaction = transactionMessage.includes(`Ksh ${feeAmount}`) ||
+                                      transactionMessage.includes(`KES ${feeAmount}`) ||
+                                      transactionMessage.includes(`Amount: ${feeAmount}`);
 
             if (!isValidTransaction) {
                 errorMessage.style.display = 'block';
@@ -377,14 +379,6 @@
                 document.getElementById('successDialog').style.display = 'flex';
             }, 2000);
         });
-
-        // Mock function to validate transaction code
-        function validateTransaction(transactionCode, fee) {
-            // In a real application, you would send the transaction code to your backend
-            // and validate if the transaction matches the fee
-            // For this example, we'll assume the transaction is valid if the code is not empty
-            return transactionCode.length > 0;
-        }
 
         // Handle the "OK" button in the success dialog
         document.getElementById('okButton').addEventListener('click', () => {
