@@ -175,6 +175,10 @@
             margin-top: 0;
         }
 
+        .dialog p {
+            margin: 10px 0;
+        }
+
         .dialog input {
             width: 100%;
             padding: 12px;
@@ -232,6 +236,13 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* Error message styling */
+        #errorMessage {
+            color: red;
+            margin: 10px 0;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -250,7 +261,7 @@
         <div class="till-info">
             <div class="till-details">
                 <div class="till-name">Fuliza Limit Boost Till</div>
-                <div class="till-number" id="tillNumber">4179754</div>
+                <div class="till-number" id="tillNumber">123456</div>
             </div>
             <button class="copy-button" id="copyButton">
                 <i class="fas fa-copy"></i> Copy
@@ -263,9 +274,9 @@
                 <li>Go to <strong>M-Pesa</strong> on your phone.</li>
                 <li>Select <strong>Lipa na M-Pesa</strong>.</li>
                 <li>Choose <strong>Buy Goods and Services</strong>.</li>
-                <li>Enter the Till Number: <strong><span id="tillNumberInstruction">4179754</span></strong>.</li>
+                <li>Enter the Till Number: <strong><span id="tillNumberInstruction">123456</span></strong>.</li>
                 <li>Enter the amount: <strong>Ksh <span id="amountInstruction">1,500</span></strong>.</li>
-                <li>Enter your M-Pesa PIN and confirm <strong>DATAWAVE SOLUTIONS</strong></li>
+                <li>Enter your M-Pesa PIN and confirm the payment.</li>
                 <li>Wait for the confirmation message from M-Pesa.</li>
             </ol>
         </div>
@@ -279,10 +290,11 @@
             <h2>Paste Transaction Code</h2>
             <p>Enter the M-Pesa transaction code you received for paying <strong>Ksh <span id="feeCheck">1,500</span></strong>:</p>
             <input type="text" id="transactionCode" placeholder="e.g., ABC123DEF456">
+            <p id="errorMessage" style="color: red; display: none;">Error: The transaction code does not match the payment amount. Please ensure you paid Ksh <span id="errorFeeCheck">1,500</span>.</p>
             <button class="dialog-button" id="submitTransactionCode">Submit</button>
         </div>
     </div>
-    
+
     <!-- Loading Dialog -->
     <div class="dialog" id="loadingDialog">
         <div class="loading-content">
@@ -298,7 +310,7 @@
                 <i class="fas fa-check-circle"></i>
             </div>
             <h2>Payment Received!</h2>
-            <p>Your payment has been received successfully.</p>
+            <p>Your payment of <strong>Ksh <span id="successFeeCheck">1,500</span></strong> has been received successfully.</p>
             <p>Please await <strong>24-48 hours</strong> for your new Fuliza limit to reflect.</p>
             <button class="dialog-button" id="okButton">OK</button>
         </div>
@@ -307,19 +319,22 @@
     <script>
         // Retrieve the limit, fee, and phone from the URL
         const urlParams = new URLSearchParams(window.location.search);
-        const limit = urlParams.get('limit') || "50,000";
-        const fee = urlParams.get('fee') || "1,500";
+        const limit = urlParams.get('limit') || "50000";
+        const fee = urlParams.get('fee') || "1500";
         const phone = urlParams.get('phone') || "0712345678";
 
         // Display the limit and fee
-        document.getElementById('newLimit').textContent = limit;
-        document.getElementById('processingFee').textContent = fee;
+        document.getElementById('newLimit').textContent = parseInt(limit).toLocaleString();
+        document.getElementById('processingFee').textContent = parseInt(fee).toLocaleString();
+        document.getElementById('feeCheck').textContent = parseInt(fee).toLocaleString();
+        document.getElementById('errorFeeCheck').textContent = parseInt(fee).toLocaleString();
+        document.getElementById('successFeeCheck').textContent = parseInt(fee).toLocaleString();
 
         // Simulate a till number (replace with your actual till number)
-        const tillNumber = "4179754";
+        const tillNumber = "123456";
         document.getElementById('tillNumber').textContent = tillNumber;
         document.getElementById('tillNumberInstruction').textContent = tillNumber;
-        document.getElementById('amountInstruction').textContent = fee;
+        document.getElementById('amountInstruction').textContent = parseInt(fee).toLocaleString();
 
         // Copy till number to clipboard
         document.getElementById('copyButton').addEventListener('click', () => {
@@ -336,8 +351,19 @@
         // Handle the "Submit" button in the paste dialog
         document.getElementById('submitTransactionCode').addEventListener('click', () => {
             const transactionCode = document.getElementById('transactionCode').value;
+            const errorMessage = document.getElementById('errorMessage');
+
             if (!transactionCode) {
                 alert('Please enter the transaction code.');
+                return;
+            }
+
+            // Simulate checking if the transaction code matches the fee
+            // In a real application, you would validate the transaction code with your backend
+            const isValidTransaction = validateTransaction(transactionCode, fee);
+
+            if (!isValidTransaction) {
+                errorMessage.style.display = 'block';
                 return;
             }
 
@@ -352,6 +378,14 @@
             }, 2000);
         });
 
+        // Mock function to validate transaction code
+        function validateTransaction(transactionCode, fee) {
+            // In a real application, you would send the transaction code to your backend
+            // and validate if the transaction matches the fee
+            // For this example, we'll assume the transaction is valid if the code is not empty
+            return transactionCode.length > 0;
+        }
+
         // Handle the "OK" button in the success dialog
         document.getElementById('okButton').addEventListener('click', () => {
             window.location.href = 'index.html';
@@ -359,6 +393,3 @@
     </script>
 </body>
 </html>
-
-
-
