@@ -15,7 +15,6 @@
             --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             --border-radius: 10px;
             --light-green: #e8f8f0;
-            --light-red: #fdecea;
         }
 
         body {
@@ -89,10 +88,6 @@
             font-size: 20px;
         }
 
-        .recent-increases-text {
-            flex: 1;
-        }
-
         .progress-bar {
             height: 8px;
             background-color: #ddd;
@@ -135,6 +130,7 @@
             cursor: pointer;
             transition: all 0.3s;
             box-shadow: var(--shadow);
+            position: relative;
         }
 
         .limit-card:hover {
@@ -146,14 +142,35 @@
             background-color: rgba(46, 204, 113, 0.1);
         }
 
+        .limit-card.hot::after {
+            content: "HOT";
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background-color: var(--secondary-color);
+            color: var(--white);
+            padding: 5px 10px;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
         .limit-card h3 {
             color: var(--primary-color);
             margin: 0 0 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .limit-card p {
             color: #666;
             margin: 0;
+        }
+
+        .checkmark {
+            color: var(--primary-color);
+            font-size: 18px;
         }
 
         .cta-button {
@@ -265,8 +282,8 @@
         </div>
 
         <div class="limit-options" id="limitOptions">
-            <div class="limit-card" data-limit="5000" data-fee="150">
-                <h3>Ksh 5,000</h3>
+            <div class="limit-card selected" data-limit="5000" data-fee="150">
+                <h3>Ksh 5,000 <span class="checkmark">✓</span></h3>
                 <p>Fee: Ksh 150</p>
             </div>
             <div class="limit-card" data-limit="7500" data-fee="199">
@@ -289,11 +306,11 @@
                 <h3>Ksh 21,000</h3>
                 <p>Fee: Ksh 550</p>
             </div>
-            <div class="limit-card" data-limit="25500" data-fee="649">
+            <div class="limit-card hot" data-limit="25500" data-fee="649">
                 <h3>Ksh 25,500</h3>
                 <p>Fee: Ksh 649</p>
             </div>
-            <div class="limit-card" data-limit="30000" data-fee="700">
+            <div class="limit-card hot" data-limit="30000" data-fee="700">
                 <h3>Ksh 30,000</h3>
                 <p>Fee: Ksh 700</p>
             </div>
@@ -313,9 +330,17 @@
                 <h3>Ksh 50,000</h3>
                 <p>Fee: Ksh 1,500</p>
             </div>
+            <div class="limit-card hot" data-limit="60000" data-fee="1750">
+                <h3>Ksh 60,000</h3>
+                <p>Fee: Ksh 1,750</p>
+            </div>
+            <div class="limit-card hot" data-limit="70000" data-fee="2050">
+                <h3>Ksh 70,000</h3>
+                <p>Fee: Ksh 2,050</p>
+            </div>
         </div>
 
-        <button class="cta-button" id="proceedButton">Get Limit Now: Ksh 0</button>
+        <button class="cta-button" id="proceedButton">Get Limit Now: Ksh 5,000</button>
 
         <div class="security-features">
             <div class="security-item">
@@ -380,26 +405,28 @@
         // Handle limit selection
         const limitCards = document.querySelectorAll('.limit-card');
         const proceedButton = document.getElementById('proceedButton');
-        let selectedLimit = null;
-        let selectedFee = null;
+        let selectedLimit = "5000";
+        let selectedFee = "150";
 
         limitCards.forEach(card => {
             card.addEventListener('click', () => {
-                limitCards.forEach(c => c.classList.remove('selected'));
+                limitCards.forEach(c => {
+                    c.classList.remove('selected');
+                    c.querySelector('.checkmark')?.remove();
+                });
                 card.classList.add('selected');
+                const checkmark = document.createElement('span');
+                checkmark.className = 'checkmark';
+                checkmark.textContent = '✓';
+                card.querySelector('h3').appendChild(checkmark);
                 selectedLimit = card.getAttribute('data-limit');
                 selectedFee = card.getAttribute('data-fee');
-                proceedButton.textContent = `Get Limit Now: Ksh ${selectedLimit}`;
+                proceedButton.textContent = `Get Limit Now: Ksh ${parseInt(selectedLimit).toLocaleString()}`;
             });
         });
 
         // Handle the "Get Limit Now" button
         proceedButton.addEventListener('click', () => {
-            if (!selectedLimit) {
-                alert('Please select a limit.');
-                return;
-            }
-
             // Show the loading dialog
             const loadingDialog = document.getElementById('loadingDialog');
             loadingDialog.style.display = 'flex';
